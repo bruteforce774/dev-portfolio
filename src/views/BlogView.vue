@@ -5,7 +5,9 @@ import { useBlogStore } from '../stores/blogStore'
 const blogStore = useBlogStore()
 
 onMounted(() => {
-    blogStore.fetchPosts()
+    if (blogStore.posts.length === 0) {
+        blogStore.fetchPosts()
+    }
 })
 </script>
 
