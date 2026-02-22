@@ -23,4 +23,8 @@ main {
   margin: 0 auto;
   padding: 0 1rem;
 }
+ul {
+  list-style: none;
+  padding: 0;
+}
 </style>
