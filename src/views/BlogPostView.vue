@@ -15,7 +15,12 @@ const renderedContent = computed(() => {
 })
 
 onMounted(async () => {
-    post.value = await blogStore.fetchPostById(route.params.id as string)
+    const cached = blogStore.posts.find(p => p.guid === route.params.id)
+    if (cached) {
+        post.value = cached
+    } else {
+        post.value = await blogStore.fetchPostById(route.params.id as string)
+    }
 })
 </script>
 
