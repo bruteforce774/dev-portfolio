@@ -4,7 +4,17 @@ import { MongoClient } from 'mongodb'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-const { MONGODB_URI, DB_NAME = 'blog', PORT = 3000, ADMIN_KEY = 'changeme' } = process.env
+const { MONGODB_URI, DB_NAME = 'blog', PORT = 3000, ADMIN_KEY } = process.env
+
+if (!MONGODB_URI) {
+    console.error('MONGODB_URI is not defined in environment variables')
+    process.exit(1)
+}
+
+if (!ADMIN_KEY) {
+    console.error('ADMIN_KEY is not defined in environment variables')
+    process.exit(1)
+}
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -13,11 +23,6 @@ const client = new MongoClient(MONGODB_URI)
 const app = express()
 app.use(express.static(path.join(__dirname, '..', 'dist')))
 app.use(express.json())
-
-if (!MONGODB_URI) {
-    console.error('MONGODB_URI is not defined in environment variables')
-    process.exit(1)
-}
 
 let db
 
