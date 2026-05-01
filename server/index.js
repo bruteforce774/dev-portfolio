@@ -3,6 +3,7 @@ import express from 'express'
 import { MongoClient } from 'mongodb'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import rateLimit from 'express-rate-limit'
 
 const { MONGODB_URI, DB_NAME = 'blog', PORT = 3000, ADMIN_KEY } = process.env
 
@@ -21,8 +22,13 @@ const __dirname = path.dirname(__filename)
 const client = new MongoClient(MONGODB_URI)
 
 const app = express()
-app.use(express.static(path.join(__dirname, '..', 'dist')))
 app.use(express.json())
+
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many attempts, try again later' },
+})
 
 let db
 
@@ -47,7 +53,7 @@ app.get('/api/posts/:id', async (req, res) => {
     }
 })
 
-app.post('/api/posts', async (req, res) => {
+app.post('/api/posts', adminLimiter, async (req, res) => {
     const key = req.headers['x-admin-key']
     if (key !== ADMIN_KEY) {
         return res.status(401).json({ error: 'Unauthorized' })
@@ -68,6 +74,8 @@ app.post('/api/posts', async (req, res) => {
         res.status(500).json({ error: 'Failed to create post' })
     }
 })
+
+app.use(express.static(path.join(__dirname, '..', 'dist')))
 
 app.get('/{*splat}', (_req, res) => {
   res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'))
