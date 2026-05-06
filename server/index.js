@@ -34,7 +34,10 @@ let db
 
 app.get('/api/posts', async (_req, res) => {
     try {
-        const posts = await db.collection('posts').find().toArray()
+        const posts = await db.collection('posts')
+          .find()
+          .sort({ dateAdded: -1 })
+          .toArray()
         res.json(posts)
     } catch (error) {
         console.error('Failed to fetch posts:', error)
